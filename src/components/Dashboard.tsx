@@ -45,10 +45,17 @@ export function Dashboard() {
         return;
       }
       if (!res.ok) {
+        let detail = "";
+        try {
+          const body = (await res.json()) as { error?: string };
+          if (body?.error) detail = ` (${body.error})`;
+        } catch {
+          // body wasn't JSON; ignore
+        }
         setState({
           kind: "error",
           pin,
-          message: `Server returned ${res.status}. Try again.`,
+          message: `Server returned ${res.status}${detail}.`,
         });
         return;
       }
