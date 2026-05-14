@@ -41,10 +41,7 @@ export function Result({ score, alreadyPlayed = false }: Props) {
             {tier.discount}% <span className="text-sw-gold">off</span>
           </p>
           <p className="mt-4 text-sw-cream/80 text-sm">
-            Auto-applies at checkout. Code:{" "}
-            <span className="font-mono font-semibold text-sw-cream tracking-wide">
-              {tier.code}
-            </span>
+            Auto-applies at checkout.
           </p>
         </div>
 
