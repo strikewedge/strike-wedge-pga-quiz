@@ -1,6 +1,6 @@
 # Strike Wedge — 2026 PGA Championship Quiz
 
-A 5-question, 90-second trivia quiz that lives at `pgaquiz.strikewedge.com` during PGA Championship week (May 14–17, 2026). Players unlock tiered discounts on Strike Wedge based on score, with a 20% floor for everyone who plays.
+A 5-question, 60-second trivia quiz that lives at `pgaquiz.strikewedge.com` during PGA Championship week (May 14–17, 2026). Players unlock tiered discounts on Strike Wedge based on score, with a 20% floor for everyone who plays.
 
 ## Stack
 

@@ -6,8 +6,8 @@ type Props = {
   onComplete: (score: number) => void;
 };
 
-const TOTAL_SECONDS = 90;
-const URGENT_THRESHOLD = 15;
+const TOTAL_SECONDS = 60;
+const URGENT_THRESHOLD = 10;
 
 export function Quiz({ onComplete }: Props) {
   const [index, setIndex] = useState(0);

@@ -18,7 +18,7 @@ export function Landing({ onStart }: { onStart: () => void }) {
         </h1>
 
         <p className="mt-5 text-lg sm:text-xl text-sw-ink/80 leading-snug">
-          5 questions. 90 seconds.{" "}
+          5 questions. 60 seconds.{" "}
           <span className="font-semibold text-sw-ink">Up to 50% off.</span>
         </p>
 
@@ -43,7 +43,7 @@ export function Landing({ onStart }: { onStart: () => void }) {
           Start Quiz →
         </button>
         <p className="text-center text-xs text-sw-ink/55 mt-3">
-          Tapping starts a 90-second timer
+          Tapping starts a 60-second timer
         </p>
       </div>
     </div>
