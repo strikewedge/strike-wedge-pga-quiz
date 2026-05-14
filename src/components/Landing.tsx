@@ -25,10 +25,6 @@ export function Landing({ onStart }: { onStart: () => void }) {
         <ul className="mt-6 space-y-2.5 text-[15px] sm:text-base text-sw-ink/85">
           <li className="flex gap-2.5">
             <Check />
-            <span>Every player gets at least <b>20% off</b>.</span>
-          </li>
-          <li className="flex gap-2.5">
-            <Check />
             <span>One attempt per device. No restarts.</span>
           </li>
           <li className="flex gap-2.5">
