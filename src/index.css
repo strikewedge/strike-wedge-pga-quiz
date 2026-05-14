@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sw-ink: #0b0f0c;
+  --color-sw-cream: #f6f1e6;
+  --color-sw-green: #2d5a3d;
+  --color-sw-green-deep: #1f3f2c;
+  --color-sw-green-soft: #3d7050;
+  --color-sw-gold: #d4af37;
+  --color-sw-red: #c4342a;
+  --color-sw-stone: #e5dfd0;
+  --font-display: "Inter Tight", "Inter", system-ui, -apple-system, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  min-height: 100dvh;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-sw-cream);
+  color: var(--color-sw-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-y: none;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+@keyframes pulse-urgent {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.92; transform: scale(1.03); }
+}
+
+.timer-pulse {
+  animation: pulse-urgent 0.9s ease-in-out infinite;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up {
+  animation: fade-up 0.25s ease-out;
+}
