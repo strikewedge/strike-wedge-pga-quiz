@@ -1,6 +1,7 @@
 import { questions } from "../data/questions";
 import { tierForScore } from "../data/tiers";
 import { discountUrl, SALE_END_LABEL } from "../data/discount";
+import { track } from "../lib/track";
 import { Logo } from "./Logo";
 
 type Props = {
@@ -47,6 +48,7 @@ export function Result({ score, alreadyPlayed = false }: Props) {
 
         <a
           href={url}
+          onClick={() => track({ event: "cta_clicked", tier: tier.discount })}
           className="mt-6 w-full inline-flex items-center justify-center bg-sw-ink hover:bg-sw-green-deep text-sw-cream font-display font-bold text-lg sm:text-xl py-5 rounded-2xl shadow-lg shadow-sw-ink/20 transition-colors active:scale-[0.99]"
         >
           Claim {tier.discount}% off →

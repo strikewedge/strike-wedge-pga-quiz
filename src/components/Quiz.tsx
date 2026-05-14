@@ -1,6 +1,8 @@
-import { useState, useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
 import { questions } from "../data/questions";
+import { tierForScore } from "../data/tiers";
 import { useCountdown, formatTime } from "../hooks/useCountdown";
+import { track } from "../lib/track";
 
 type Props = {
   onComplete: (score: number) => void;
@@ -13,28 +15,44 @@ export function Quiz({ onComplete }: Props) {
   const [index, setIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<boolean[]>([]);
+  const firedRef = useRef(false);
 
   const finish = useCallback(
-    (finalScore: number) => {
+    (finalScore: number, finalAnswers: boolean[], timedOut: boolean) => {
+      if (firedRef.current) return;
+      firedRef.current = true;
+      const tier = tierForScore(finalScore).discount;
+      track({
+        event: "quiz_finished",
+        score: finalScore,
+        tier,
+        timedOut,
+        answers: finalAnswers,
+      });
       onComplete(finalScore);
     },
     [onComplete]
   );
 
-  const remaining = useCountdown(TOTAL_SECONDS, true, () => finish(score));
+  const remaining = useCountdown(TOTAL_SECONDS, true, () =>
+    finish(score, answers, true)
+  );
 
   const handlePick = (optionIndex: number) => {
     if (picked !== null) return;
     setPicked(optionIndex);
     const current = questions[index];
     const correct = optionIndex === current.correctIndex;
+    const nextAnswers = [...answers, correct];
+    setAnswers(nextAnswers);
     const nextScore = correct ? score + 1 : score;
     if (correct) setScore(nextScore);
 
     window.setTimeout(() => {
       const nextIndex = index + 1;
       if (nextIndex >= questions.length) {
-        finish(nextScore);
+        finish(nextScore, nextAnswers, false);
         return;
       }
       setIndex(nextIndex);

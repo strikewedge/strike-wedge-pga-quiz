@@ -4,16 +4,16 @@ A 5-question, 60-second trivia quiz that lives at `pgaquiz.strikewedge.com` duri
 
 ## Stack
 
-Vite + React 19 + TypeScript + Tailwind CSS v4. No backend — single-attempt enforcement is `localStorage`.
+Vite + React 19 + TypeScript + Tailwind CSS v4. Backend is two Vercel Functions (`api/track`, `api/stats`) that talk to Upstash Redis for anonymous counters.
 
 ## Scoring tiers
 
-| Correct | Discount | Code |
-|---|---|---|
-| 5 | 50% | `PGA50` |
-| 4 | 40% | `PGA40` |
-| 3 | 30% | `PGA30` |
-| 0–2 | 20% | `PGA20` |
+| Correct | Discount |
+|---|---|
+| 5 | 50% |
+| 4 | 40% |
+| 3 | 30% |
+| 0–2 | 20% |
 
 The CTA opens a Shopify auto-apply URL: `https://strikewedge.com/discount/<CODE>?redirect=/products/strike-wedge`.
 
@@ -23,12 +23,20 @@ The CTA opens a Shopify auto-apply URL: `https://strikewedge.com/discount/<CODE>
 - Tiers / codes: `src/data/tiers.ts`
 - Discount URL + sale-end label: `src/data/discount.ts`
 
+## Dashboard
+
+Private at `/dashboard`. Enter the PIN once on each device — it's cached in `localStorage` after that.
+
+Shows: starts, finishes, completion rate, CTA clicks + CTR, score distribution, tier breakdown, timed-out vs answered-all, and per-question correct/wrong. Auto-refreshes every 10s.
+
 ## Develop
 
 ```
 npm install
 npm run dev
 ```
+
+The `/api/*` routes need Vercel infrastructure — they won't respond locally unless you run `vercel dev`.
 
 ## Build
 
@@ -38,8 +46,15 @@ npm run build
 
 ## Deploy
 
-Designed for Vercel. Connect the repo to a Vercel project and set the production domain to `pgaquiz.strikewedge.com`. Vercel auto-detects Vite — no config file required.
+1. Connect the GitHub repo to a Vercel project. Vercel auto-detects Vite — no config file required.
+2. From the Vercel dashboard, install **Upstash → Redis** from the Marketplace and link it to this project. It auto-injects `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`.
+3. Add a project environment variable: `DASHBOARD_PIN=<your-pin>` (any 4–6 digits).
+4. Set the production domain to `pgaquiz.strikewedge.com`.
 
 ## Reset a single device
 
-Clear the `localStorage` key `strike_wedge_pga_quiz_2026` in DevTools to allow a re-play.
+Clear the `localStorage` key `strike_wedge_pga_quiz_2026` (player) or `pga_quiz_dashboard_pin` (dashboard) in DevTools.
+
+## Privacy
+
+No PII captured. The `api/track` endpoint accepts only event name, score, tier, timed-out flag, and a per-question correct/wrong array. The single-attempt gate is a localStorage flag on the device — not a server-side identifier.
