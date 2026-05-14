@@ -2,12 +2,22 @@ import { Redis } from "@upstash/redis";
 
 let cached: Redis | null = null;
 
+function resolveCreds(): { url: string; token: string } | null {
+  const url =
+    process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL ?? null;
+  const token =
+    process.env.UPSTASH_REDIS_REST_TOKEN ??
+    process.env.KV_REST_API_TOKEN ??
+    null;
+  if (!url || !token) return null;
+  return { url, token };
+}
+
 export function getRedis(): Redis | null {
   if (cached) return cached;
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) return null;
-  cached = new Redis({ url, token });
+  const creds = resolveCreds();
+  if (!creds) return null;
+  cached = new Redis(creds);
   return cached;
 }
 

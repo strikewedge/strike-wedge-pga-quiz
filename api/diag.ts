@@ -13,11 +13,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const dashboardPinSet = Boolean(process.env.DASHBOARD_PIN);
   const upstashUrlSet = Boolean(process.env.UPSTASH_REDIS_REST_URL);
   const upstashTokenSet = Boolean(process.env.UPSTASH_REDIS_REST_TOKEN);
+  const kvUrlSet = Boolean(process.env.KV_REST_API_URL);
+  const kvTokenSet = Boolean(process.env.KV_REST_API_TOKEN);
+  const effectiveUrl =
+    process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL ?? null;
   const urlHost = (() => {
     try {
-      return process.env.UPSTASH_REDIS_REST_URL
-        ? new URL(process.env.UPSTASH_REDIS_REST_URL).host
-        : null;
+      return effectiveUrl ? new URL(effectiveUrl).host : null;
     } catch {
       return "invalid_url";
     }
@@ -28,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   let pingResult: "ok" | "threw" | "skipped" = "skipped";
   let pingError: string | null = null;
 
-  if (upstashUrlSet && upstashTokenSet) {
+  if ((upstashUrlSet || kvUrlSet) && (upstashTokenSet || kvTokenSet)) {
     try {
       const redis = getRedis();
       redisCtor = redis ? "ok" : "threw";
@@ -54,7 +56,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       dashboardPinSet,
       upstashUrlSet,
       upstashTokenSet,
-      upstashUrlHost: urlHost,
+      kvUrlSet,
+      kvTokenSet,
+      urlHost,
       nodeEnv: process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? null,
     },
     redisCtor,
