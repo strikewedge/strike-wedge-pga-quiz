@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getRedis, KEYS } from "../lib/redis";
+import { getRedis, KEYS } from "../lib/redis.js";
 
 const VALID_TIERS = new Set([20, 30, 40, 50]);
 const VALID_SCORES = new Set([0, 1, 2, 3, 4, 5]);

@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getRedis, KEYS } from "../lib/redis";
+import { getRedis, KEYS } from "../lib/redis.js";
 
 const SCORES = [0, 1, 2, 3, 4, 5];
 const TIERS = [20, 30, 40, 50];

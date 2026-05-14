@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getRedis } from "../lib/redis";
+import { getRedis } from "../lib/redis.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const expected = process.env.DASHBOARD_PIN;
