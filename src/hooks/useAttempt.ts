@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { Variant } from "../data/questions";
 
 const STORAGE_KEY = "strike_wedge_pga_quiz_2026";
 
@@ -7,6 +8,7 @@ export type Attempt = {
   score: number;
   code: string;
   timestamp: string;
+  variant?: Variant;
 };
 
 function readAttempt(): Attempt | null {
@@ -15,7 +17,12 @@ function readAttempt(): Attempt | null {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Attempt;
-    if (parsed && parsed.completed && typeof parsed.score === "number" && typeof parsed.code === "string") {
+    if (
+      parsed &&
+      parsed.completed &&
+      typeof parsed.score === "number" &&
+      typeof parsed.code === "string"
+    ) {
       return parsed;
     }
     return null;
@@ -33,12 +40,13 @@ export function useAttempt() {
     setHydrated(true);
   }, []);
 
-  const save = (score: number, code: string) => {
+  const save = (score: number, code: string, variant?: Variant) => {
     const next: Attempt = {
       completed: true,
       score,
       code,
       timestamp: new Date().toISOString(),
+      ...(variant ? { variant } : {}),
     };
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));

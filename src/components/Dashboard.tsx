@@ -5,6 +5,14 @@ import { Logo } from "./Logo";
 const PIN_KEY = "pga_quiz_dashboard_pin";
 const REFRESH_MS = 10_000;
 
+type VariantStats = {
+  started: number;
+  finished: number;
+  ctaClicked: number;
+  completionRate: number;
+  ctaRate: number;
+};
+
 type Stats = {
   started: number;
   finished: number;
@@ -16,6 +24,7 @@ type Stats = {
   tierCount: Record<string, number>;
   ctaByTier: Record<string, number>;
   perQuestion: { id: number; correct: number; wrong: number }[];
+  variants?: Record<string, VariantStats>;
 };
 
 type State =
@@ -268,6 +277,8 @@ function StatsView({
         />
       </Section>
 
+      {stats.variants && <AbTest variants={stats.variants} />}
+
       <Section title="Per question">
         <ul className="space-y-3">
           {stats.perQuestion.map((q) => {
@@ -350,15 +361,84 @@ function Kpi({
 function Section({
   title,
   children,
+  sub,
 }: {
   title: string;
   children: React.ReactNode;
+  sub?: string;
 }) {
   return (
     <section className="mt-7">
       <h2 className="font-display font-bold text-sw-ink text-lg">{title}</h2>
+      {sub && <p className="text-xs text-sw-ink/55 mt-0.5">{sub}</p>}
       <div className="mt-3">{children}</div>
     </section>
+  );
+}
+
+const VARIANT_LABEL: Record<string, string> = {
+  A: "Variant A (hard)",
+  B: "Variant B (easier)",
+};
+
+function AbTest({ variants }: { variants: Record<string, VariantStats> }) {
+  const a = variants.A;
+  const b = variants.B;
+  if (!a && !b) return null;
+  const aRate = a?.ctaRate ?? 0;
+  const bRate = b?.ctaRate ?? 0;
+  const delta = bRate - aRate;
+  const lead =
+    !a?.ctaClicked && !b?.ctaClicked
+      ? "No CTA clicks yet."
+      : delta > 0
+      ? `Variant B leads by ${pct(Math.abs(delta))} CTR.`
+      : delta < 0
+      ? `Variant A leads by ${pct(Math.abs(delta))} CTR.`
+      : "Tied on CTR.";
+
+  return (
+    <Section
+      title="Question set A/B test"
+      sub="50/50 split. Watch CTR for the winner."
+    >
+      <div className="grid grid-cols-2 gap-3">
+        {(["A", "B"] as const).map((v) => {
+          const s = variants[v];
+          if (!s) return <div key={v} />;
+          return (
+            <div
+              key={v}
+              className="bg-white border border-sw-stone rounded-2xl p-3"
+            >
+              <p className="text-[11px] uppercase tracking-widest font-semibold text-sw-ink/55">
+                {VARIANT_LABEL[v]}
+              </p>
+              <p className="font-display font-extrabold text-3xl tabular-nums text-sw-ink mt-1">
+                {pct(s.ctaRate)}
+              </p>
+              <p className="text-[11px] text-sw-ink/55">CTR</p>
+              <dl className="mt-3 space-y-1 text-[13px] tabular-nums">
+                <Row label="Starts" value={s.started} />
+                <Row label="Finishes" value={s.finished} />
+                <Row label="Completion" value={pct(s.completionRate)} />
+                <Row label="CTA clicks" value={s.ctaClicked} />
+              </dl>
+            </div>
+          );
+        })}
+      </div>
+      <p className="text-xs text-sw-ink/65 mt-3 font-medium">{lead}</p>
+    </Section>
+  );
+}
+
+function Row({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <dt className="text-sw-ink/65">{label}</dt>
+      <dd className="font-semibold text-sw-ink">{value}</dd>
+    </div>
   );
 }
 

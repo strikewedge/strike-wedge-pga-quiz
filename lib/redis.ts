@@ -31,4 +31,7 @@ export const KEYS = {
   ctaTier: (n: number) => `quiz:cta_clicked:tier:${n}`,
   qCorrect: (id: number) => `quiz:q:${id}:correct`,
   qWrong: (id: number) => `quiz:q:${id}:wrong`,
+  startedVariant: (v: string) => `quiz:started:variant:${v}`,
+  finishedVariant: (v: string) => `quiz:finished:variant:${v}`,
+  ctaVariant: (v: string) => `quiz:cta_clicked:variant:${v}`,
 };

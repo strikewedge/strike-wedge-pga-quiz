@@ -1,17 +1,19 @@
-import { useCallback, useRef, useState } from "react";
-import { questions } from "../data/questions";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { getQuestions, type Variant } from "../data/questions";
 import { tierForScore } from "../data/tiers";
 import { useCountdown, formatTime } from "../hooks/useCountdown";
 import { track } from "../lib/track";
 
 type Props = {
+  variant: Variant;
   onComplete: (score: number) => void;
 };
 
 const TOTAL_SECONDS = 60;
 const URGENT_THRESHOLD = 10;
 
-export function Quiz({ onComplete }: Props) {
+export function Quiz({ variant, onComplete }: Props) {
+  const questions = useMemo(() => getQuestions(variant), [variant]);
   const [index, setIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
@@ -29,10 +31,11 @@ export function Quiz({ onComplete }: Props) {
         tier,
         timedOut,
         answers: finalAnswers,
+        variant,
       });
       onComplete(finalScore);
     },
-    [onComplete]
+    [onComplete, variant]
   );
 
   const remaining = useCountdown(TOTAL_SECONDS, true, () =>

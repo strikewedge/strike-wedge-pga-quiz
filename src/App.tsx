@@ -5,6 +5,7 @@ import { Result } from "./components/Result";
 import { Dashboard } from "./components/Dashboard";
 import { useAttempt } from "./hooks/useAttempt";
 import { tierForScore } from "./data/tiers";
+import { assignVariant, type Variant } from "./data/questions";
 import { track } from "./lib/track";
 
 type Phase = "landing" | "quiz" | "result";
@@ -17,6 +18,7 @@ function App() {
   const { attempt, hydrated, save } = useAttempt();
   const [phase, setPhase] = useState<Phase>("landing");
   const [score, setScore] = useState(0);
+  const [variant, setVariant] = useState<Variant | null>(null);
 
   if (IS_DASHBOARD) {
     return <Dashboard />;
@@ -27,26 +29,35 @@ function App() {
   }
 
   if (attempt) {
-    return <Result score={attempt.score} alreadyPlayed />;
+    return (
+      <Result
+        score={attempt.score}
+        variant={attempt.variant}
+        alreadyPlayed
+      />
+    );
   }
 
   if (phase === "landing") {
     return (
       <Landing
         onStart={() => {
-          track({ event: "quiz_started" });
+          const v = assignVariant();
+          setVariant(v);
+          track({ event: "quiz_started", variant: v });
           setPhase("quiz");
         }}
       />
     );
   }
 
-  if (phase === "quiz") {
+  if (phase === "quiz" && variant) {
     return (
       <Quiz
+        variant={variant}
         onComplete={(finalScore) => {
           const tier = tierForScore(finalScore);
-          save(finalScore, tier.code);
+          save(finalScore, tier.code, variant);
           setScore(finalScore);
           setPhase("result");
         }}
@@ -54,7 +65,7 @@ function App() {
     );
   }
 
-  return <Result score={score} />;
+  return <Result score={score} variant={variant ?? undefined} />;
 }
 
 export default App;

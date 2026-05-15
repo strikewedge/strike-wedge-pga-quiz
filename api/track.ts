@@ -3,6 +3,7 @@ import { getRedis, KEYS } from "../lib/redis.js";
 
 const VALID_TIERS = new Set([20, 30, 40, 50]);
 const VALID_SCORES = new Set([0, 1, 2, 3, 4, 5]);
+const VALID_VARIANTS = new Set(["A", "B"]);
 const QUESTION_COUNT = 5;
 
 type Body = {
@@ -11,7 +12,12 @@ type Body = {
   tier?: number;
   timedOut?: boolean;
   answers?: unknown;
+  variant?: unknown;
 };
+
+function pickVariant(v: unknown): string | null {
+  return typeof v === "string" && VALID_VARIANTS.has(v) ? v : null;
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -40,10 +46,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const pipe = redis.pipeline();
+    const variant = pickVariant(body.variant);
 
     switch (body.event) {
       case "quiz_started":
         pipe.incr(KEYS.started);
+        if (variant) pipe.incr(KEYS.startedVariant(variant));
         break;
 
       case "quiz_finished": {
@@ -60,6 +68,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         pipe.incr(KEYS.finishedScore(score));
         pipe.incr(KEYS.finishedTier(tier));
         pipe.incr(KEYS.finishedTimedOut(timedOut));
+        if (variant) pipe.incr(KEYS.finishedVariant(variant));
 
         if (Array.isArray(body.answers)) {
           for (let i = 0; i < Math.min(body.answers.length, QUESTION_COUNT); i++) {
@@ -78,6 +87,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         pipe.incr(KEYS.ctaClicked);
         pipe.incr(KEYS.ctaTier(tier));
+        if (variant) pipe.incr(KEYS.ctaVariant(variant));
         break;
       }
 

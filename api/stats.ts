@@ -4,6 +4,7 @@ import { getRedis, KEYS } from "../lib/redis.js";
 const SCORES = [0, 1, 2, 3, 4, 5];
 const TIERS = [20, 30, 40, 50];
 const QUESTION_IDS = [1, 2, 3, 4, 5];
+const VARIANTS = ["A", "B"];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -49,6 +50,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ...TIERS.map((t) => KEYS.finishedTier(t)),
       ...TIERS.map((t) => KEYS.ctaTier(t)),
       ...QUESTION_IDS.flatMap((id) => [KEYS.qCorrect(id), KEYS.qWrong(id)]),
+      ...VARIANTS.flatMap((v) => [
+        KEYS.startedVariant(v),
+        KEYS.finishedVariant(v),
+        KEYS.ctaVariant(v),
+      ]),
     ];
 
     let raw: (string | number | null)[];
@@ -85,6 +91,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       wrong: n(i++),
     }));
 
+    const variants: Record<
+      string,
+      {
+        started: number;
+        finished: number;
+        ctaClicked: number;
+        completionRate: number;
+        ctaRate: number;
+      }
+    > = {};
+    for (const v of VARIANTS) {
+      const vStarted = n(i++);
+      const vFinished = n(i++);
+      const vCta = n(i++);
+      variants[v] = {
+        started: vStarted,
+        finished: vFinished,
+        ctaClicked: vCta,
+        completionRate: vStarted > 0 ? vFinished / vStarted : 0,
+        ctaRate: vFinished > 0 ? vCta / vFinished : 0,
+      };
+    }
+
     res.setHeader("Cache-Control", "no-store");
     return res.status(200).json({
       ok: true,
@@ -98,6 +127,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       tierCount,
       ctaByTier,
       perQuestion,
+      variants,
     });
   } catch (e) {
     console.error("/api/stats unhandled:", e);

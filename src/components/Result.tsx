@@ -1,4 +1,4 @@
-import { questions } from "../data/questions";
+import { questions, type Variant } from "../data/questions";
 import { tierForScore } from "../data/tiers";
 import { discountUrl, SALE_END_LABEL } from "../data/discount";
 import { track } from "../lib/track";
@@ -6,10 +6,11 @@ import { Logo } from "./Logo";
 
 type Props = {
   score: number;
+  variant?: Variant;
   alreadyPlayed?: boolean;
 };
 
-export function Result({ score, alreadyPlayed = false }: Props) {
+export function Result({ score, variant, alreadyPlayed = false }: Props) {
   const tier = tierForScore(score);
   const url = discountUrl(tier.code);
 
@@ -48,7 +49,9 @@ export function Result({ score, alreadyPlayed = false }: Props) {
 
         <a
           href={url}
-          onClick={() => track({ event: "cta_clicked", tier: tier.discount })}
+          onClick={() =>
+            track({ event: "cta_clicked", tier: tier.discount, variant })
+          }
           className="mt-6 w-full inline-flex items-center justify-center bg-sw-ink hover:bg-sw-green-deep text-sw-cream font-display font-bold text-lg sm:text-xl py-5 rounded-2xl shadow-lg shadow-sw-ink/20 transition-colors active:scale-[0.99]"
         >
           Claim {tier.discount}% off →
